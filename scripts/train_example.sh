@@ -1,0 +1,1 @@
+python train.py --outdir [outdir] --data [path_to_original_dataset_eg_ffhq] --gpus [N] --resume [ckpt] --name [name_of_run] --tag [wandb_tag] --expansion_cfg_file [path_to_cfg_file] --snap [how_often_to_checkpoint] --cfg stylegan2 --aug noaug --mirror 1
