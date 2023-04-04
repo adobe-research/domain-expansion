@@ -25,6 +25,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
+
 from expansion_utils import io_utils
 
 import torch
@@ -107,3 +109,26 @@ class PersonalizedDataset(Dataset):
 
     def __getitem__(self, idx):
         return self.samples[idx]
+
+
+def sample_from_P0(anchors: torch.FloatTensor, num_points_to_sample: int, num_anchors_for_sample: int = 3):
+    num_anchors = anchors.shape[0]
+
+    scalars = torch.zeros(num_points_to_sample, num_anchors).to(anchors.device)
+    tmp_scalars = torch.rand(num_points_to_sample, num_anchors_for_sample).to(anchors.device)
+    tmp_scalars = (tmp_scalars / torch.sum(tmp_scalars, axis=-1, keepdims=True))
+
+    indices = np.zeros((num_points_to_sample, num_anchors_for_sample), dtype=int)
+
+    for i in range(num_points_to_sample):
+        indices[i, :] = np.random.choice(anchors.shape[0], size=num_anchors_for_sample, replace=False)
+        scalars[i, indices[i]] = tmp_scalars[i]
+
+    if anchors.dim() == 4:
+        points = torch.einsum('pn, nolk ->  polk', scalars, anchors)
+    elif anchors.dim() == 2:
+        points = scalars @ anchors
+    else:
+        raise ValueError('Anchors are in unknown format')
+
+    return points

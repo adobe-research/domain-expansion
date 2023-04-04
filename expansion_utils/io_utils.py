@@ -8,7 +8,8 @@ import torch
 from torch.utils.data import DataLoader
 import torchvision
 from PIL import Image, ImageDraw, ImageFont
-from expansion_utils import consts
+from expansion_utils import consts, latent_operations
+
 
 IMAGE_SUFFIX = ['.jpg', '.png', '.svg', '.webp', '.jpeg']
 
@@ -117,3 +118,18 @@ def get_images_in_dir(input_dir: Path):
     global IMAGE_SUFFIX
     image_fps = [fp for fp in input_dir.iterdir() if fp.suffix in IMAGE_SUFFIX]
     return image_fps
+
+def load_latents(latents_dir: Path, to_w=False):
+    latents = []
+    for f in latents_dir.iterdir():
+        if not (f.is_file() or f.suffix == '.pt'):
+            continue
+
+        latents.append(torch.load(f))
+
+    latents = torch.stack(latents, dim=0)
+
+    if to_w:
+        latents = latent_operations.wplus_to_w(latents)
+
+    return latents
