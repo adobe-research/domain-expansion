@@ -10,6 +10,8 @@ import torchvision
 from PIL import Image, ImageDraw, ImageFont
 from expansion_utils import consts
 
+IMAGE_SUFFIX = ['.jpg', '.png', '.svg', '.webp', '.jpeg']
+
 
 def max_num_not_in_list(max_num, lst):
     for i in range(max_num, 0, -1):
@@ -40,20 +42,20 @@ def process_config(expansion_cfg_path):
             task["dimension"] = curr_max_dim
             used_dims.append(curr_max_dim)
 
-    print(f"Parsed config successfuly! Repurposing {len(used_dims)} dims, good luck!")
+    print(f"Parsed config successfully! Repurposing {len(used_dims)} dims, good luck!")
 
     return expansion_cfg
 
 
 def label_image(img: torch.Tensor, label: str = None):
     batch_size = img.shape[0]
-    img = torchvision.utils.make_grid(img, batch_size) # concat over W
+    img = torchvision.utils.make_grid(img, batch_size)  # concat over W
     if label is not None:
         H, W = img.shape[-2:]
-        W = W // (4 * batch_size) 
-        H, W = W, H # will be rotated, so H is W
-        font = ImageFont.truetype("DejaVuSans.ttf", 60) # TODO: use different font sizes for different resolutions.
-        label_img = Image.new('RGB', (W ,H), color='white') 
+        W = W // (4 * batch_size)
+        H, W = W, H  # will be rotated, so H is W
+        font = ImageFont.truetype("DejaVuSans.ttf", 60)  # TODO: use different font sizes for different resolutions.
+        label_img = Image.new('RGB', (W, H), color='white')
         draw = ImageDraw.Draw(label_img)
         w, h = draw.textsize(label, font=font)
         draw.text(((W - w) / 2, (H - h) / 2), label, font=font, fill=(0, 0, 0))
@@ -62,9 +64,10 @@ def label_image(img: torch.Tensor, label: str = None):
         img = torch.cat([label_img, img], dim=-1)
     return img
 
+
 def save_batched_images(images: torch.Tensor, output_path: Path, labels: list = None, max_row_in_img=5):
     num_rows = images.shape[0]
-    
+
     if labels is not None:
         if num_rows != len(labels):
             raise ValueError('Number of labels should match number of batches')
@@ -109,3 +112,8 @@ def save_images(frames: torch.Tensor, output_path: Path, nrow=None, size=None, s
             range=(-1, 1),
         )
 
+
+def get_images_in_dir(input_dir: Path):
+    global IMAGE_SUFFIX
+    image_fps = [fp for fp in input_dir.iterdir() if fp.suffix in IMAGE_SUFFIX]
+    return image_fps

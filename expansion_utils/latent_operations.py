@@ -5,8 +5,8 @@ import torch
 
 
 def project_to_subspaces(latent: torch.Tensor, basis: torch.Tensor,
-                        repurposed_dims: torch.Tensor, base_dims: torch.Tensor = None,
-                        step_size=None, mean=None):
+                         repurposed_dims: torch.Tensor, base_dims: torch.Tensor = None,
+                         step_size=None, mean=None):
     """
     Project latent on the base subspace (Z_base) - spanned by the base_dims.
     Then, traverses the projected latent along the repurposed directions.
@@ -19,12 +19,12 @@ def project_to_subspaces(latent: torch.Tensor, basis: torch.Tensor,
         traversals.shape, 1D case -[num_steps, num_repurposed, shape of input]
         traversals.shape, ND case -[num_steps_1, ..., num_steps_N, shape of input]
     """
-    
+
     if type(latent) == list:
         if len(latent) != 1:
             raise ValueError('Latent wrapped by list should be of length 1')
         latent = latent[0]
-    
+
     latent_in_w = False
     if latent.dim() == 2:
         # Lift to W+ just for now
@@ -34,13 +34,13 @@ def project_to_subspaces(latent: torch.Tensor, basis: torch.Tensor,
         raise ValueError('Latent is expected to be 2D (W space) or 3D (W+ space)')
 
     latent_dim = latent.shape[-1]
-    
+
     if base_dims is None:
         # Take all non-repurposed dims to span the base subspace -- default mode
         base_dims = torch.Tensor([x for x in range(latent_dim) if x not in repurposed_dims])
 
     # Use values instead of boolean to change order as needed
-    repurposed_directions = basis[:, repurposed_dims.numpy()]  
+    repurposed_directions = basis[:, repurposed_dims.numpy()]
     base_directions = basis[:, base_dims.numpy()]
 
     projected_latent = latent @ base_directions
@@ -80,11 +80,18 @@ def project_to_subspaces(latent: torch.Tensor, basis: torch.Tensor,
     if latent_in_w:
         # Bring back to W sapce
         base_latent, edit_latents = wplus_to_w(base_latent), edit_latents[..., 0, :]
-        
+
     return base_latent, edit_latents
 
+
 def w_to_wplus(w_latent: torch.Tensor, num_ws=18):
-    return w_latent.unsqueeze(1).repeat([1, num_ws, 1])
+    if w_latent.dim() == 2:
+        w_latent.unsqueeze_(1)
+    elif w_latent.dim() != 3:
+        raise ValueError(f'Input is of unexpected shape {w_latent.shape}')
+
+    return w_latent.repeat([1, num_ws, 1])
+
 
 def wplus_to_w(latents: torch.Tensor):
     """
