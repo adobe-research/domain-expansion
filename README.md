@@ -45,8 +45,12 @@ conda env create -f environment.yml
 ## Inference
 
 You can generate aligned images - i.e., the same latent code projected to various subspaces - using [generate_aligned.py](generate_aligned.py).
+<br>
+MyStyle operates slightly different since the effect of training is local,
+and hence a latent is often meaningless in different subspaces.
+To generate with MyStyle-repurposed subspace, you can use [generate_mystyle.py](generate_mystyle.py).
 
-For convenience, we provide a couple of pretrained expanded models:
+For convenience, we provide a couple of pretrained NADA-expanded models:
 
 Parent Model    | Number of new domains | Model
 |---------------|-----------------------|------------------|
@@ -57,7 +61,10 @@ Parent Model    | Number of new domains | Model
 
 Training interface is similar to that in [stylegan2-ada-pytorch](https://github.com/NVlabs/stylegan2-ada-pytorch), with a few additional arguments. A training command example is given [here](scripts/train_example.sh).
 
-Parameter `--expansion_cfg_file` points to a JSON configuration file specifying the domain expansions to perform. A simple example:
+Parameter `--expansion_cfg_file` points to a JSON configuration file specifying the domain expansions to perform.
+Two examples, applying NADA and MyStyle, are in `config_examples` directory.
+
+Here's NADA's example:
 
 ```
 {
@@ -77,6 +84,10 @@ Parameter `--expansion_cfg_file` points to a JSON configuration file specifying 
 The first key, "tasks", defines the training task to perform on specific latent directions.
 If the dimension number is not specified, we use the "most dormant" direction that isn't already specified. In the above example, elf would repurpose the dim 511.
 Different tasks might perform the same adaptation method. We therefore specify shared arguments separately under "tasks_losses".
+
+Since adaptation methods might require different number of steps, we recommend expanding the domain gradually.
+For example, repurpose several subspaces with MyStyle first.
+When results are satisfactory, repurpose more subspace with NADA.
 
 ### Support Additional Domain Adaptation Methods
 

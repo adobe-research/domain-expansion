@@ -1,0 +1,36 @@
+{
+  "tasks": [
+    {
+      "type": "MyStyle",
+      "dimension": 511,
+      "args": {
+        "person_name": "Barack Obama",
+        "images_dir": "",
+        "anchors_dir": ""
+      }
+    },
+    {
+      "type": "MyStyle",
+      "dimension": 510,
+      "args": {
+        "person_name": "Michelle Obama",
+        "images_dir": "",
+        "anchors_dir": ""
+      }
+    },
+    {
+      "type": "MyStyle",
+      "dimension": 509,
+      "args": {
+        "person_name": "Dwayne Johnson",
+        "images_dir": "",
+        "anchors_dir": ""
+      }
+    }
+  ],
+  "tasks_losses": {
+    "MyStyle": {
+      "l2_weight": 1.0
+    }
+  }
+}

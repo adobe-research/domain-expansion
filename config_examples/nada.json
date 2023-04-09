@@ -1,0 +1,12 @@
+ {
+    "tasks": [
+      {"type": "NADA", "dimension": 510, "args": {"source_text": "photo","target_text": "sketch"}},
+      {"type": "NADA", "args": {"source_text": "person","target_text": "tolkein elf"}}
+    ],
+    "tasks_losses": {
+        "NADA" : {
+            "clip_models": ["ViT-B/32","ViT-B/16"],
+            "clip_model_weights": [1.0, 1.0]
+        }
+      }
+}
