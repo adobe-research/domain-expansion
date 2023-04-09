@@ -34,8 +34,9 @@ def generate_images(
     for i in range(num_samples):
         z = torch.randn((1, G.z_dim)).to(device)
         w = G.mapping(z, None, truncation_psi=truncation_psi)
-        base_w, edit_ws = latent_operations.project_to_subspaces(w, latent_basis, repurposed_dims, step_size=subspace_distance, mean=G.mapping.w_avg)
-        edit_ws = edit_ws[0] # Single step
+        base_w, edit_ws = latent_operations.project_to_subspaces(w, latent_basis, repurposed_dims,
+                                                                 step_size=subspace_distance, mean=G.mapping.w_avg)
+        edit_ws = edit_ws[0]  # Single step
         base_img = G.synthesis(base_w, noise_mode='const')
         io_utils.save_images(base_img, out_dir.joinpath('base', f'{i:05d}'))
 
@@ -51,7 +52,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--ckpt', help='Network pickle filename', required=True)
     parser.add_argument('--out_dir', help='Where to save the output images', type=str, required=True, metavar='DIR')
-    parser.add_argument('--num', help='Number of independant samples', type=int)
+    parser.add_argument('--num', help='Number of independent samples', type=int)
     parser.add_argument('--truncation_psi', help='Coefficient for truncation', type=float, default=1)
 
     args = parser.parse_args()
